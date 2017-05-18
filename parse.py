@@ -8,9 +8,7 @@ import hashlib
 import os.path
 import pickle
 from SPARQLWrapper import SPARQLWrapper, JSON
-import simplekml
 import csv
-
 
 
 
@@ -39,7 +37,7 @@ def parse_identifiers(htmltext):
         href = link.attrib["href"]
         if "wikipedia.org" in href:
             wikipedialinks.append(href)
-            link_labels.append(href, link.text_content().strip())
+            link_labels.append((href, link.text_content().strip()))
 
     titles = page_titles_from_links(wikipedialinks)
     return wikidata_from_wp(titles)
@@ -141,6 +139,9 @@ def get_basics_for_wduri(wikidata_uri):
         sparql.setQuery(sq)
         queryres = sparql.query().convert()
 
+        if not os.path.exists("./wdcache"):
+            os.makedirs("./wdcache")
+
         with open(filename, 'wb') as cachehandle:
             pickle.dump(queryres, cachehandle)
 
@@ -160,7 +161,7 @@ def jsonld_for_post(post):
     wdids = parse_identifiers(post["content"]["rendered"])
 
 
-    itemuri = URIRef("http://oldnews.peterkrantz.se/index.rdf#" + post["date"])
+    itemuri = URIRef("http://oldnews.peterkrantz.se/data/index.rdf#" + post["date"])
     # Basic page data
     g.add((itemuri, RDF.type , NAMESPACES["schema"]["NewsArticle"]))
     g.add((itemuri, NAMESPACES["schema"]["isPartOf"], URIRef("http://libris.kb.se/resource/bib/2979645")))
@@ -187,6 +188,14 @@ def write_unknowns():
             writer.writerow(row)
 
 
+
+def write_link_labels():
+    with open("./data/link_labels.csv", "w") as f:
+        writer = csv.writer(f)
+        for row in link_labels:
+            writer.writerow(row)
+
+
 def parse_data(url):
     print(f"Working on {url}")
     r = requests.get(url)
@@ -206,7 +215,9 @@ g = Graph()
 url = 'http://oldnews.peterkrantz.se/wp-json/wp/v2/posts?per_page=100'
 parse_data(url)
 
-g.serialize(destination='index.rdf', format='xml', indent=4, encoding="utf-8")
+# Dump RDF
+g.serialize(destination='./data/index.rdf', format='xml', indent=4, encoding="utf-8")
 
+# Dump CSVs
 write_unknowns()
-print(link_labels)
+write_link_labels()
