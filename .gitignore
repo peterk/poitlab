@@ -1,6 +1,7 @@
 
 data/*.csv
 map/poit.json
+wdcache
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
