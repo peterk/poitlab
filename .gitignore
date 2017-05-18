@@ -2,6 +2,7 @@
 data/*.csv
 map/poit.json
 wdcache
+deploy_*.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
