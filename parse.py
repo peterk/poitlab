@@ -9,18 +9,23 @@ import os.path
 import pickle
 from SPARQLWrapper import SPARQLWrapper, JSON
 import csv
-
+import coloredlogs, logging
 
 
 NAMESPACES = {	
    'schema' : Namespace('http://schema.org/'),
-   'dcterms' : Namespace('http://purl.org/dc/terms/')
+   'dcterms' : Namespace('http://purl.org/dc/terms/'),
+   'wdt' : Namespace('http://www.wikidata.org/prop/direct/'),
+   'wd' : Namespace('http://www.wikidata.org/entity/')
 }
 
 #Find unknown places (linked with https://www.wikidata.org/wiki/Q2221906 )
 unknown_places = []
 unknown_persons = []
 link_labels = []
+
+logger = logging.getLogger("poitlab")
+coloredlogs.install(level='DEBUG')
 
 def parse_identifiers(htmltext):
     """Parse wikidata identifiers from Wikipedia links in text.
@@ -36,7 +41,7 @@ def parse_identifiers(htmltext):
     for link in links:
         href = link.attrib["href"]
         if "wikipedia.org" in href:
-            wikipedialinks.append(href)
+            wikipedialinks.append(href.strip())
             link_labels.append((href, link.text_content().strip()))
 
     titles = page_titles_from_links(wikipedialinks)
@@ -46,13 +51,30 @@ def parse_identifiers(htmltext):
 def parse_unknown_items(htmltext, url):
     tree = html.fromstring(htmltext)
     links = tree.xpath("//a[@href]")
+    post_uri = uri_for_post("-".join(url.split("/")[-4:-1]))
 
     for link in links:
-        href = link.attrib["href"]
+        href = link.attrib["href"].strip()
+
+        # Unknown place
         if href=="https://www.wikidata.org/wiki/Q2221906":
+            place = BNode()
+            g.add( (place, RDFS.label, Literal(link.text_content().strip(), lang="sv")))
+            g.add( (place, NAMESPACES["wdt"]["P31"], NAMESPACES["wd"]["Q2221906"] ))
+            g.add( (post_uri, NAMESPACES["schema"]["about"], place) )
+
             unknown_places.append((link.text_content(), url))
+
+        # Unknown person
         if href=="https://sv.wikipedia.org/wiki/N.N.":
+            person = BNode()
+            g.add( (person, RDFS.label, Literal(link.text_content().strip(), lang="sv")))
+            g.add( (person, NAMESPACES["wdt"]["P31"], NAMESPACES["wd"]["P5"] ))
+            g.add( (post_uri, NAMESPACES["schema"]["about"], person) )
+
             unknown_persons.append((link.text_content(), url))
+
+
 
 
 def page_titles_from_links(wp_links):
@@ -64,9 +86,22 @@ def page_titles_from_links(wp_links):
         if not lang in titles:
             titles[lang] = []
         title = link.split("/")[-1]
-        titles[lang].append(title)
+
+        if not title in titles[lang]:
+            titles[lang].append(title)
 
     return titles
+
+
+
+def commons_url_from_name(name):
+    urlbase = "https://upload.wikimedia.org/wikipedia/commons/"
+    md5 = hashlib.md5()
+    md5.update(name.encode('utf-8'))
+    namehash = md5.hexdigest()
+    url = f"{urlbase}{namehash[0]}/{namehash[0:2]}/{name}"
+
+    return url
 
 
 
@@ -80,20 +115,45 @@ def wikidata_from_wp(titles):
         title_param = "|".join(titles[lang])
 
         q = f"https://{lang}.wikipedia.org/w/api.php?action=query&prop=pageprops&format=json&titles={title_param}"
-        print(q)
-        r = requests.get(q)
-        jd = r.json()
+        logger.info(f"Requesting pageprops {q}")
+
+        md5 = hashlib.md5()
+        md5.update(q.encode('utf-8'))
+        filename = os.path.join("wdcache", md5.hexdigest())
+        if os.path.isfile(filename):
+            with open(filename, 'rb') as cachehandle:
+               jd = pickle.load(cachehandle)
+        else:
+            r = requests.get(q)
+            jd = r.json()
+
+            if not os.path.exists("./wdcache"):
+                os.makedirs("./wdcache")
+
+            with open(filename, 'wb') as cachehandle:
+                logger.warn(f"Storing {q}")
+                pickle.dump(jd, cachehandle)
 
         for key, value in jd["query"]["pages"].items():
             wdq = value["pageprops"]["wikibase_item"]
             if wdq:
                 wikidata_uris.append("http://www.wikidata.org/entity/" + wdq)
+            else:
+                logger.warn("Missing wikibase_item")
+
+            # check out image
+            if "page_image_free" in value["pageprops"]:
+                imgname = value["pageprops"]["page_image_free"]
+                if imgname:
+                    imgurl = commons_url_from_name(imgname)
+                    g.add((URIRef("http://www.wikidata.org/entity/" + wdq), NAMESPACES["schema"]["image"], Literal(imgurl)))
+
 
     return wikidata_uris
 
 
 def get_basics_for_wduri(wikidata_uri):
-    print(wikidata_uri)
+    logger.info(f"Requesting data for {wikidata_uri}")
     md5 = hashlib.md5()
     md5.update(wikidata_uri.encode('utf-8'))
     filename = os.path.join("wdcache", md5.hexdigest())
@@ -101,7 +161,6 @@ def get_basics_for_wduri(wikidata_uri):
     queryres = None
     if os.path.isfile(filename):
         with open(filename, 'rb') as cachehandle:
-           print("using cached result from '%s'" % filename)
            queryres = pickle.load(cachehandle)
     else:
         # gör till construct senare
@@ -143,11 +202,12 @@ def get_basics_for_wduri(wikidata_uri):
             os.makedirs("./wdcache")
 
         with open(filename, 'wb') as cachehandle:
+            logger.warn(f"Storing {wikidata_uri}")
             pickle.dump(queryres, cachehandle)
 
     for result in queryres["results"]["bindings"]:
         if "itemLabel" in result:
-            print(result["itemLabel"]["value"])
+            logger.info(f'Got label {result["itemLabel"]["value"]}')
             g.add((URIRef(wikidata_uri), RDFS.label, Literal(result["itemLabel"]["value"])))
         if "lat" in result:
             geo = BNode()
@@ -157,17 +217,23 @@ def get_basics_for_wduri(wikidata_uri):
             g.add((URIRef(wikidata_uri), NAMESPACES["schema"]["geo"], geo))
 
 
+def uri_for_post(datestring):
+    """Make a URIRef for a wp post.
+    """
+    return URIRef("http://oldnews.peterkrantz.se/data/index.rdf#" + datestring)
+
+
 def jsonld_for_post(post):
     wdids = parse_identifiers(post["content"]["rendered"])
 
-
-    itemuri = URIRef("http://oldnews.peterkrantz.se/data/index.rdf#" + post["date"])
+    itemuri = uri_for_post(post["date"].split("T")[0])
     # Basic page data
     g.add((itemuri, RDF.type , NAMESPACES["schema"]["NewsArticle"]))
     g.add((itemuri, NAMESPACES["schema"]["isPartOf"], URIRef("http://libris.kb.se/resource/bib/2979645")))
     g.add((itemuri, NAMESPACES["schema"]["url"],Literal(post["link"])))
     g.add((itemuri, NAMESPACES["schema"]["datePublished"], Literal(post["date"],datatype=XSD.date)))
     g.add((itemuri, NAMESPACES["dcterms"]["title"], Literal(post["title"]["rendered"] , lang="sv")))
+    g.add((itemuri, NAMESPACES["dcterms"]["identifier"], Literal(post["id"])))
 
     for item in wdids:
         g.add((itemuri, NAMESPACES["schema"]["about"], URIRef(item)))
@@ -197,7 +263,7 @@ def write_link_labels():
 
 
 def parse_data(url):
-    print(f"Working on {url}")
+    logger.info(f"Working on {url}")
     r = requests.get(url)
     jsondata = r.json()
     for post in jsondata:
