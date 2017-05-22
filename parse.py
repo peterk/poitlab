@@ -60,6 +60,7 @@ def parse_unknown_items(htmltext, url):
         if href=="https://www.wikidata.org/wiki/Q2221906":
             place = BNode()
             g.add( (place, RDFS.label, Literal(link.text_content().strip(), lang="sv")))
+            # instance of geographic place
             g.add( (place, NAMESPACES["wdt"]["P31"], NAMESPACES["wd"]["Q2221906"] ))
             g.add( (post_uri, NAMESPACES["schema"]["about"], place) )
 
@@ -69,7 +70,8 @@ def parse_unknown_items(htmltext, url):
         if href=="https://sv.wikipedia.org/wiki/N.N.":
             person = BNode()
             g.add( (person, RDFS.label, Literal(link.text_content().strip(), lang="sv")))
-            g.add( (person, NAMESPACES["wdt"]["P31"], NAMESPACES["wd"]["P5"] ))
+            # instance of human
+            g.add( (person, NAMESPACES["wdt"]["P31"], NAMESPACES["wd"]["Q5"] ))
             g.add( (post_uri, NAMESPACES["schema"]["about"], person) )
 
             unknown_persons.append((link.text_content(), url))
@@ -119,7 +121,7 @@ def wikidata_from_wp(titles):
 
         md5 = hashlib.md5()
         md5.update(q.encode('utf-8'))
-        filename = os.path.join("wdcache", md5.hexdigest())
+        filename = os.path.join("wdcache", "prop_" + md5.hexdigest())
         if os.path.isfile(filename):
             with open(filename, 'rb') as cachehandle:
                jd = pickle.load(cachehandle)
@@ -157,6 +159,7 @@ def get_basics_for_wduri(wikidata_uri):
     md5 = hashlib.md5()
     md5.update(wikidata_uri.encode('utf-8'))
     filename = os.path.join("wdcache", md5.hexdigest())
+    logger.info(f"Cache for {wikidata_uri} is {filename}")
     sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
     queryres = None
     if os.path.isfile(filename):
@@ -168,31 +171,32 @@ def get_basics_for_wduri(wikidata_uri):
         sparql.setReturnFormat(JSON)
 
         sq = f'''
-        PREFIX psv: <http://www.wikidata.org/prop/statement/value/>
-        PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>        
-        PREFIX wikibase: <http://wikiba.se/ontology#>
-        PREFIX bd: <http://www.bigdata.com/rdf#>
-        
-        SELECT ?itemLabel ?lat ?lon ?country ?countryLabel
-        WHERE
-        {{ 
-            OPTIONAL {{
-            <{wikidata_uri}> p:P625 ?coords .
-                ?coords ps:P625 ?coord.
-                ?coords psv:P625 ?coordinate_node.  
-            ?coordinate_node wikibase:geoLatitude ?lat .
-            ?coordinate_node wikibase:geoLongitude ?lon .
-            <{wikidata_uri}> wdt:P17 ?country .
-            }}
+SELECT ?itemLabel ?lat ?lon ?country ?countryLabel ?imageurl ?instance ?type ?entityDescription
+WHERE
+{{
+  BIND (<{wikidata_uri}> as ?entity)
+  BIND(IF(EXISTS{{?entity wdt:P31 wd:Q5}},"human", IF(EXISTS{{?entity p:P625 ?c}},"place", "other")) AS ?type)
+  OPTIONAL {{
+    ?entity p:P625 ?coords .
+    ?coords ps:P625 ?coord.
+    ?coords psv:P625 ?coordinate_node.  
+    ?coordinate_node wikibase:geoLatitude ?lat .
+    ?coordinate_node wikibase:geoLongitude ?lon .
+    ?entity wdt:P17 ?country .
+  }}
 
-              SERVICE wikibase:label {{ 
-              bd:serviceParam wikibase:language "sv,en" .
-              <{wikidata_uri}> rdfs:label ?itemLabel .
-              ?country rdfs:label ?countryLabel .
-            }}
-        }}
-        LIMIT 1
+  OPTIONAL {{
+    ?entity wdt:P18 ?imageurl .
+  }}
+  
+  SERVICE wikibase:label {{ 
+    bd:serviceParam wikibase:language "sv,en,de,da,nl,fr" .
+    ?entity rdfs:label ?itemLabel .
+    ?entity schema:description ?entityDescription .
+    ?country rdfs:label ?countryLabel .
+  }}
+}}
+LIMIT 1
         '''
 
         sparql.setQuery(sq)
@@ -205,16 +209,34 @@ def get_basics_for_wduri(wikidata_uri):
             logger.warn(f"Storing {wikidata_uri}")
             pickle.dump(queryres, cachehandle)
 
+
+
+
     for result in queryres["results"]["bindings"]:
+
+        #check what this is and make simpler instance info
+        if "type" in result:
+            logger.info("Instance of %s" % result["type"]["value"])
+            if "human" in result["type"]["value"]:
+                g.add( (URIRef(wikidata_uri), NAMESPACES["wdt"]["P31"], NAMESPACES["wd"]["Q5"]) )
+            if "place" in result["type"]["value"]:
+                g.add( (URIRef(wikidata_uri), NAMESPACES["wdt"]["P31"], URIRef("http://www.wikidata.org/entity/Q2221906" )) )
+
         if "itemLabel" in result:
             logger.info(f'Got label {result["itemLabel"]["value"]}')
             g.add((URIRef(wikidata_uri), RDFS.label, Literal(result["itemLabel"]["value"])))
+
+        if "entityDescription" in result:
+            g.add((URIRef(wikidata_uri), NAMESPACES["schema"]["description"],
+                Literal(result["entityDescription"]["value"])))
+
         if "lat" in result:
             geo = BNode()
             g.add((geo, RDF.type, NAMESPACES["schema"]["GeoCoordinates"] ))
             g.add((geo, NAMESPACES["schema"]["latitude"], Literal(result["lat"]["value"]) ))
             g.add((geo, NAMESPACES["schema"]["longitude"], Literal(result["lon"]["value"]) ))
             g.add((URIRef(wikidata_uri), NAMESPACES["schema"]["geo"], geo))
+
 
 
 def uri_for_post(datestring):
@@ -271,9 +293,12 @@ def parse_data(url):
         parse_unknown_items(post["content"]["rendered"], post["link"])
 
     if "Link" in r.headers:
-        if 'rel="next"' in r.headers["Link"]:
-            url = r.headers["Link"].split(";")[0][1:-1]
-            parse_data(url)
+        logger.info(f"Header: {r.headers['Link']}")
+        links = requests.utils.parse_header_links(r.headers["Link"])
+        for link in links:
+            if "next" in link["rel"]:
+                url = link["url"]
+                parse_data(url)
 
 
 g = Graph()

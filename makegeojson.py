@@ -4,6 +4,7 @@ from rdflib.namespace import Namespace
 from rdflib import Graph, BNode, RDF, RDFS, URIRef, Literal, XSD
 import pygeoj
 from geojson import Feature, Point
+import coloredlogs, logging
 
 
 geoj = pygeoj.new()
@@ -23,7 +24,7 @@ qres = g.query(
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX dc: <http://purl.org/dc/terms/>
 
-    SELECT ?newsitemlabel ?label ?lon ?lat ?newsitemdate ?url
+    SELECT DISTINCT ?newsitemlabel ?label ?lon ?lat ?newsitemdate ?url
        WHERE {
           ?item rdfs:label ?label .
           ?item sdo:geo ?geo .
@@ -38,6 +39,7 @@ qres = g.query(
 for row in qres:
     p = Point((float(row[2].value), float(row[3].value)))
     desc = f"{row[1]}: {row[4]}<br><a href='{row[5]}'>{row[0]}</a>"
+    print(desc)
     f = Feature(geometry=p)
     f.properties = {"description": desc, "name":row[1], "time": row[4], "url": row[5]}
     geoj.add_feature(f)

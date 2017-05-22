@@ -73,7 +73,7 @@ function poit_callback(data){
 		// point is displayed for 20 days after it is added.
 		return {
 			start: Date.parse(feature.properties.time),
-			end:   Date.parse(feature.properties.time) + (20*864000000),
+			end:   Date.parse(feature.properties.time) + (5*864000000),
 		};
 	};
 	var timelineControl = L.timelineSliderControl({
