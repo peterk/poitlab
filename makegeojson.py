@@ -16,7 +16,7 @@ NAMESPACES = {
 
 g = Graph()
 
-g.parse("./data/index.rdf")
+g.parse("./data/poit.rdf")
 
 qres = g.query(
     """

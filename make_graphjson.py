@@ -24,7 +24,7 @@ NAMESPACES = {
 
 ng = nx.DiGraph()
 g = Graph()
-g.load("./data/index.rdf")
+g.load("./data/poit.rdf")
 
 for post in g.subjects( RDF.type, NAMESPACES["schema"]["NewsArticle"]):
     print(g.value(post, NAMESPACES["dcterms"]["title"] ))

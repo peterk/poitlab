@@ -23,7 +23,7 @@ NAMESPACES = {
         }
 
 g = Graph()
-g.load("./data/index.rdf")
+g.load("./data/poit.rdf")
 
 
 # Create a graph of all objects by post

@@ -10,6 +10,7 @@ import pickle
 from SPARQLWrapper import SPARQLWrapper, JSON
 import csv
 import coloredlogs, logging
+from urllib.parse import urlparse
 
 
 NAMESPACES = {	
@@ -83,9 +84,10 @@ def parse_unknown_items(htmltext, url, post_id):
 def page_titles_from_links(wp_links):
     """Return a list of page titles parsed from wikipedia page links
     """
+    logger.info(wp_links)
     titles = {}
     for link in wp_links:
-        lang = link[8:10]
+        lang = urlparse(link).netloc.split(".")[0]
         if not lang in titles:
             titles[lang] = []
         title = link.split("/")[-1]
@@ -111,6 +113,8 @@ def commons_url_from_name(name):
 def wikidata_from_wp(titles):
     """Lookup Wikidata IDs from a list of page titles
     """
+
+    logger.info(titles)
 
     wikidata_uris = []
 
@@ -243,11 +247,12 @@ LIMIT 1
 def uri_for_post(post_id):
     """Make a URIRef for a wp post.
     """
-    return URIRef("http://oldnews.peterkrantz.se/data/index.rdf#" + str(post_id))
+    return URIRef("http://oldnews.peterkrantz.se/data/poit.rdf#" + str(post_id))
 
 
 def jsonld_for_post(post):
     wdids = parse_identifiers(post["content"]["rendered"])
+    logger.info(f"Working on post -------> {post['id']}")
 
     itemuri = uri_for_post(post["id"])
     # Basic page data
@@ -311,7 +316,7 @@ url = 'http://oldnews.peterkrantz.se/wp-json/wp/v2/posts?per_page=100'
 parse_data(url)
 
 # Dump RDF
-g.serialize(destination='./data/index.rdf', format='xml', indent=4, encoding="utf-8")
+g.serialize(destination='./data/poit.rdf', format='xml', indent=4, encoding="utf-8")
 
 # Dump CSVs
 write_unknowns()
