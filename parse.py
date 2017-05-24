@@ -2,7 +2,7 @@ import requests
 import certifi
 import json
 from lxml import html
-from rdflib.namespace import Namespace
+from rdflib.namespace import Namespace, NamespaceManager
 from rdflib import Graph, BNode, RDF, RDFS, URIRef, Literal, XSD
 import hashlib
 import os.path
@@ -48,10 +48,10 @@ def parse_identifiers(htmltext):
     return wikidata_from_wp(titles)
 
 
-def parse_unknown_items(htmltext, url):
+def parse_unknown_items(htmltext, url, post_id):
     tree = html.fromstring(htmltext)
     links = tree.xpath("//a[@href]")
-    post_uri = uri_for_post("-".join(url.split("/")[-4:-1]))
+    post_uri = uri_for_post(post_id)
 
     for link in links:
         href = link.attrib["href"].strip()
@@ -72,6 +72,7 @@ def parse_unknown_items(htmltext, url):
             g.add( (person, RDFS.label, Literal(link.text_content().strip(), lang="sv")))
             # instance of human
             g.add( (person, NAMESPACES["wdt"]["P31"], NAMESPACES["wd"]["Q5"] ))
+            g.add( (person, RDFS.seeAlso, NAMESPACES["wd"]["Q1142091"] ) )
             g.add( (post_uri, NAMESPACES["schema"]["about"], person) )
 
             unknown_persons.append((link.text_content(), url))
@@ -239,16 +240,16 @@ LIMIT 1
 
 
 
-def uri_for_post(datestring):
+def uri_for_post(post_id):
     """Make a URIRef for a wp post.
     """
-    return URIRef("http://oldnews.peterkrantz.se/data/index.rdf#" + datestring)
+    return URIRef("http://oldnews.peterkrantz.se/data/index.rdf#" + str(post_id))
 
 
 def jsonld_for_post(post):
     wdids = parse_identifiers(post["content"]["rendered"])
 
-    itemuri = uri_for_post(post["date"].split("T")[0])
+    itemuri = uri_for_post(post["id"])
     # Basic page data
     g.add((itemuri, RDF.type , NAMESPACES["schema"]["NewsArticle"]))
     g.add((itemuri, NAMESPACES["schema"]["isPartOf"], URIRef("http://libris.kb.se/resource/bib/2979645")))
@@ -290,7 +291,7 @@ def parse_data(url):
     jsondata = r.json()
     for post in jsondata:
         jsonld_for_post(post)
-        parse_unknown_items(post["content"]["rendered"], post["link"])
+        parse_unknown_items(post["content"]["rendered"], url, post["id"])
 
     if "Link" in r.headers:
         logger.info(f"Header: {r.headers['Link']}")
@@ -302,6 +303,9 @@ def parse_data(url):
 
 
 g = Graph()
+
+for prefix in NAMESPACES:
+    g.bind(prefix, NAMESPACES[prefix])
 
 url = 'http://oldnews.peterkrantz.se/wp-json/wp/v2/posts?per_page=100'
 parse_data(url)
