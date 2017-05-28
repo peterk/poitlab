@@ -11,6 +11,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 import csv
 import coloredlogs, logging
 from urllib.parse import urlparse
+import xmltodict
 
 
 NAMESPACES = {	
@@ -25,16 +26,51 @@ unknown_places = []
 unknown_persons = []
 link_labels = []
 
+# Set up colored logging!
 logger = logging.getLogger("poitlab")
 coloredlogs.install(level='DEBUG')
+
+
+
+
+def thumb_url(url, size):
+    """Return a Wikimedia commons thumbnail URL from the canonical image url
+    returned by wikidata. (Necessary to get e.g. tif image thumbnails)"""
+
+    md5 = hashlib.md5()
+    md5.update(url.encode('utf-8'))
+    filename = os.path.join("wdcache", "thumb_" + md5.hexdigest())
+    if os.path.isfile(filename):
+        # Get from cache
+        with open(filename, 'rb') as cachehandle:
+            logger.info(f"Thumb from cache {filename}")
+            return pickle.load(cachehandle)
+
+    else:
+        name = urlparse(url).path.split("/")[-1]
+        r = requests.get(f"https://tools.wmflabs.org/magnus-toolserver/commonsapi.php?image={name}&thumbwidth={size}")
+        wcd = xmltodict.parse(r.content)
+
+        # Prepare for caching
+        if not os.path.exists("./wdcache"):
+            os.makedirs("./wdcache")
+
+        with open(filename, 'wb') as cachehandle:
+            logger.warn(f"Storing {filename}")
+            pickle.dump(wcd["response"]["file"]["urls"]["thumbnail"], cachehandle)
+
+        return wcd["response"]["file"]["urls"]["thumbnail"]
+
+
+
 
 def parse_identifiers(htmltext):
     """Parse wikidata identifiers from Wikipedia links in text.
 
-    :htmltext: html text
-    :returns: list of wikidata identifiers
-
+    :htmltext: html text containing wikipedia links.
+    :returns: list of wikidata identifiers.
     """
+
     tree = html.fromstring(htmltext)
     links = tree.xpath("//a[@href]")
     wikipedialinks = []
@@ -46,7 +82,9 @@ def parse_identifiers(htmltext):
             link_labels.append((href, link.text_content().strip()))
 
     titles = page_titles_from_links(wikipedialinks)
+
     return wikidata_from_wp(titles)
+
 
 
 def parse_unknown_items(htmltext, url, post_id):
@@ -82,14 +120,18 @@ def parse_unknown_items(htmltext, url, post_id):
 
 
 def page_titles_from_links(wp_links):
-    """Return a list of page titles parsed from wikipedia page links
+    """Return a list of page titles parsed from wikipedia page links.
     """
-    logger.info(wp_links)
     titles = {}
+
     for link in wp_links:
+
+        # Get wikipedia edition from language subdomain
         lang = urlparse(link).netloc.split(".")[0]
+
         if not lang in titles:
             titles[lang] = []
+        
         title = link.split("/")[-1]
 
         if not title in titles[lang]:
@@ -99,41 +141,35 @@ def page_titles_from_links(wp_links):
 
 
 
-def commons_url_from_name(name):
-    urlbase = "https://upload.wikimedia.org/wikipedia/commons/"
-    md5 = hashlib.md5()
-    md5.update(name.encode('utf-8'))
-    namehash = md5.hexdigest()
-    url = f"{urlbase}{namehash[0]}/{namehash[0:2]}/{name}"
-
-    return url
-
 
 
 def wikidata_from_wp(titles):
-    """Lookup Wikidata IDs from a list of page titles
+    """Look up Wikidata URI:s from a list of page titles.
     """
-
-    logger.info(titles)
 
     wikidata_uris = []
 
+    # Ask for page props by language edition
     for lang in titles:
         title_param = "|".join(titles[lang])
 
         q = f"https://{lang}.wikipedia.org/w/api.php?action=query&prop=pageprops&format=json&titles={title_param}"
         logger.info(f"Requesting pageprops {q}")
 
+        # Cache and reuse if possible
         md5 = hashlib.md5()
         md5.update(q.encode('utf-8'))
         filename = os.path.join("wdcache", "prop_" + md5.hexdigest())
         if os.path.isfile(filename):
+            # Get from cache
             with open(filename, 'rb') as cachehandle:
                jd = pickle.load(cachehandle)
         else:
+            # No cache vailable
             r = requests.get(q)
             jd = r.json()
 
+            # Prepare for caching
             if not os.path.exists("./wdcache"):
                 os.makedirs("./wdcache")
 
@@ -148,14 +184,6 @@ def wikidata_from_wp(titles):
             else:
                 logger.warn("Missing wikibase_item")
 
-            # check out image
-            if "page_image_free" in value["pageprops"]:
-                imgname = value["pageprops"]["page_image_free"]
-                if imgname:
-                    imgurl = commons_url_from_name(imgname)
-                    g.add((URIRef("http://www.wikidata.org/entity/" + wdq), NAMESPACES["schema"]["image"], Literal(imgurl)))
-
-
     return wikidata_uris
 
 
@@ -163,7 +191,7 @@ def get_basics_for_wduri(wikidata_uri):
     logger.info(f"Requesting data for {wikidata_uri}")
     md5 = hashlib.md5()
     md5.update(wikidata_uri.encode('utf-8'))
-    filename = os.path.join("wdcache", md5.hexdigest())
+    filename = os.path.join("wdcache", "wd_" + md5.hexdigest())
     logger.info(f"Cache for {wikidata_uri} is {filename}")
     sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
     queryres = None
@@ -176,7 +204,8 @@ def get_basics_for_wduri(wikidata_uri):
         sparql.setReturnFormat(JSON)
 
         sq = f'''
-SELECT ?itemLabel ?lat ?lon ?country ?countryLabel ?imageurl ?instance ?type ?entityDescription
+SELECT ?itemLabel ?lat ?lon ?country ?countryLabel ?imageurl ?instance ?type
+?entityDescription ?citizencountry ?citizencountryLabel
 WHERE
 {{
   BIND (<{wikidata_uri}> as ?entity)
@@ -194,11 +223,16 @@ WHERE
     ?entity wdt:P18 ?imageurl .
   }}
   
+  OPTIONAL {{
+    ?entity wdt:P27 ?citizencountry .
+  }}
+
   SERVICE wikibase:label {{ 
     bd:serviceParam wikibase:language "sv,en,de,da,nl,fr" .
     ?entity rdfs:label ?itemLabel .
     ?entity schema:description ?entityDescription .
     ?country rdfs:label ?countryLabel .
+    ?citizencountry rdfs:label ?citizencountryLabel .
   }}
 }}
 LIMIT 1
@@ -213,8 +247,6 @@ LIMIT 1
         with open(filename, 'wb') as cachehandle:
             logger.warn(f"Storing {wikidata_uri}")
             pickle.dump(queryres, cachehandle)
-
-
 
 
     for result in queryres["results"]["bindings"]:
@@ -233,7 +265,7 @@ LIMIT 1
 
         if "entityDescription" in result:
             g.add((URIRef(wikidata_uri), NAMESPACES["schema"]["description"],
-                Literal(result["entityDescription"]["value"])))
+                Literal(result["entityDescription"]["value"], lang=result["entityDescription"]["xml:lang"])))
 
         if "lat" in result:
             geo = BNode()
@@ -241,6 +273,21 @@ LIMIT 1
             g.add((geo, NAMESPACES["schema"]["latitude"], Literal(result["lat"]["value"]) ))
             g.add((geo, NAMESPACES["schema"]["longitude"], Literal(result["lon"]["value"]) ))
             g.add((URIRef(wikidata_uri), NAMESPACES["schema"]["geo"], geo))
+
+        if "citizencountry" in result:
+            g.add((URIRef(wikidata_uri), NAMESPACES["schema"]["nationality"],
+                URIRef(result["citizencountry"]["value"])))
+            g.add((URIRef(result["citizencountry"]["value"]), RDFS.label,
+                Literal(result["citizencountryLabel"]["value"])))
+
+        if "imageurl" in result:
+            imageurl = result["imageurl"]["value"]
+            g.add((URIRef(wikidata_uri), NAMESPACES["schema"]["image"], Literal(imageurl)))
+
+            thumbnail = thumb_url(imageurl, 120)
+            g.add((URIRef(wikidata_uri), NAMESPACES["schema"]["thumbnailUrl"], Literal(thumbnail)))
+            logger.info(f"Added thumbnail {thumbnail}")
+
 
 
 
@@ -261,7 +308,7 @@ def jsonld_for_post(post):
     g.add((itemuri, NAMESPACES["schema"]["url"],Literal(post["link"])))
     g.add((itemuri, NAMESPACES["schema"]["datePublished"], Literal(post["date"],datatype=XSD.date)))
     g.add((itemuri, NAMESPACES["dcterms"]["title"], Literal(post["title"]["rendered"] , lang="sv")))
-    g.add((itemuri, NAMESPACES["dcterms"]["identifier"], Literal(post["id"])))
+    g.add((itemuri, NAMESPACES["dcterms"]["identifier"], Literal(post["id"],datatype=XSD.integer)))
 
     for item in wdids:
         g.add((itemuri, NAMESPACES["schema"]["about"], URIRef(item)))
@@ -296,7 +343,7 @@ def parse_data(url):
     jsondata = r.json()
     for post in jsondata:
         jsonld_for_post(post)
-        parse_unknown_items(post["content"]["rendered"], url, post["id"])
+        parse_unknown_items(post["content"]["rendered"], post["link"], post["id"])
 
     if "Link" in r.headers:
         logger.info(f"Header: {r.headers['Link']}")

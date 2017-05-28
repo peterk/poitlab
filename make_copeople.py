@@ -26,36 +26,9 @@ NAMESPACES = {
 g = Graph()
 g.load("./data/poit.rdf")
 
-
-# Create a graph of all objects by post
-basegraph = nx.DiGraph()
-for post in g.subjects( RDF.type, NAMESPACES["schema"]["NewsArticle"]):
-    print(g.value(post, NAMESPACES["dcterms"]["title"] ))
-
-    # add post node
-    basegraph.add_node(post, title=g.value(post, NAMESPACES["dcterms"]["title"]),
-            date=g.value(post, NAMESPACES["schema"]["datePublished"]),
-            itype="Post")
-
-    for post,p,item in g.triples( (post, NAMESPACES["schema"]["about"], None) ):
-        print("\t" + g.label(item))
-        itemtype = "Person"
-        if g.value(item, NAMESPACES["schema"]["geo"]):
-            itemtype="Place"
-        print("\t\t" + itemtype)
-
-        imageurl = g.value(item, NAMESPACES["schema"]["image"])
-        if imageurl:
-            basegraph.add_node(item, title=g.label(item), itype=itemtype, imageurl=imageurl)
-        else:
-            basegraph.add_node(item, title=g.label(item), itype=itemtype)
-
-        basegraph.add_edge(post, item)
-
-print(f"Base graph node count: {basegraph.number_of_nodes()}")
-nx.write_gml(basegraph, "./data/poit.gml")
-
-
+# Set up colored logging!
+logger = logging.getLogger("poitlab")
+coloredlogs.install(level='DEBUG')
 
 # Create a graph of co-occurring people in posts
 copeople = nx.Graph() 
@@ -64,35 +37,56 @@ sq = """PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>        
 PREFIX wd: <http://www.wikidata.org/entity/>
 PREFIX dcterms: <http://purl.org/dc/terms/>
-SELECT DISTINCT ?postid ?person ?label 
+SELECT DISTINCT ?postid ?person ?label ?citizencountry 
 WHERE {
 ?person wdt:P31 wd:Q5 .
 ?person rdfs:label ?label .
 ?post schema:about ?person .
 ?post dcterms:identifier ?postid .
+OPTIONAL {
+?person schema:nationality ?citizenof .
+?citizenof rdfs:label ?citizencountry .
+}
 FILTER NOT EXISTS{?person rdfs:seeAlso wd:Q1142091 }
 }
 ORDER BY ?postid
-
 """
-
 
 qres = g.query(sq)
 
 res = {}
 
 for row in qres:
+
     if not str(row["postid"]) in res:
         res[str(row["postid"])] = []
-    res[str(row["postid"])].append(str(row["label"]))
+    res[str(row["postid"])].append(row)
 
+# Add edges netween all people in this post
 for key in res:
-    copeople.add_edges_from(combinations(res[key],2))
+    if not len(res[key]) == 0:
+        post_node_ids = []
+        for row in res[key]:
+            logger.info(f"Adding: {row['person']} {row['label']} {row['citizencountry']}")
+            copeople.add_node(row["person"], {"label": row["label"], "group": row["citizencountry"] if row["citizencountry"] else "Unknown"})
+            post_node_ids.append(row["person"])
+
+        # add combination of edges
+        copeople.add_edges_from(combinations(post_node_ids,2))
 
 # Add property values for size based on degree
 for node in copeople.nodes():
     copeople.node[node]["size"] = copeople.degree(node)
-    copeople.node[node]["group"] = 1
 
-print(f"Co-occurence graph node count: {copeople.number_of_nodes()}")
-nx.write_gml(copeople, "./data/copeople.gml")
+logger.info(f"Co-occurence graph node count: {copeople.number_of_nodes()}")
+
+nx.write_gml(copeople, "./graph/copeople.gml")
+
+data = json_graph.node_link_data(copeople)
+
+data['links'] = [ {  'source': data['nodes'][link['source']]['id'], 'target':
+    data['nodes'][link['target']]['id'] } for link in data['links']]
+
+with open('./graph/copeople.json', 'w') as f:
+  json.dump(data, f, ensure_ascii=False, indent=4)
+
