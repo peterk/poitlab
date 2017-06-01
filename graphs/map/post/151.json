@@ -1,1 +1,0 @@
-{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [12.383333333333, 51.333333333333]}, "properties": {"description": "Leipzig", "name": "Leipzig"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [12.383333333333, 12.383333333333, 51.333333333333, 51.333333333333]}

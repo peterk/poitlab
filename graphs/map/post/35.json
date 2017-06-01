@@ -1,1 +1,0 @@
-{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [13.0, 55.605555555556]}, "properties": {"description": "Malm\u00f6", "name": "Malm\u00f6"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [13.0, 13.0, 55.605555555556, 55.605555555556]}

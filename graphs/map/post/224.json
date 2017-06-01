@@ -1,1 +1,0 @@
-{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [11.690833333333, 50.729166666667]}, "properties": {"description": "Lausnitz", "name": "Lausnitz"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [11.690833333333, 11.690833333333, 50.729166666667, 50.729166666667]}

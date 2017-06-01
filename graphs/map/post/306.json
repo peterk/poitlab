@@ -1,1 +1,0 @@
-{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [37.617777777778, 55.755833333333]}, "properties": {"description": "Moskva", "name": "Moskva"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [37.617777777778, 37.617777777778, 55.755833333333, 55.755833333333]}

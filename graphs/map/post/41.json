@@ -1,1 +1,0 @@
-{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [18.068611111111, 59.329444444444]}, "properties": {"description": "Stockholm", "name": "Stockholm"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [18.068611111111, 18.068611111111, 59.329444444444, 59.329444444444]}

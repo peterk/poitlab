@@ -1,1 +1,0 @@
-{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [14.421388888889, 50.088611111111]}, "properties": {"description": "Prag", "name": "Prag"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [14.421388888889, 14.421388888889, 50.088611111111, 50.088611111111]}

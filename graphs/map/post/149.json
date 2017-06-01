@@ -1,1 +1,0 @@
-{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [12.25, 57.105555555556]}, "properties": {"description": "Varberg", "name": "Varberg"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [12.25, 12.25, 57.105555555556, 57.105555555556]}

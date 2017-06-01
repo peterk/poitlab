@@ -1,1 +1,0 @@
-{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [4.9, 52.383333333333]}, "properties": {"description": "Amsterdam", "name": "Amsterdam"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [4.9, 4.9, 52.383333333333, 52.383333333333]}
