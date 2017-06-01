@@ -1,0 +1,13 @@
+# Alla personer som förekommer i materialet.
+# wdt:P31 (instance of)
+# wd:Q5 (human)
+
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>        
+PREFIX wd: <http://www.wikidata.org/entity/>
+
+SELECT ?person ?label 
+WHERE {
+      ?person wdt:P31 wd:Q5 .
+      ?person rdfs:label ?label .
+}

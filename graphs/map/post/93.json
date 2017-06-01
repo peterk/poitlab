@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [12.616666666667, 56.033333333333]}, "properties": {"description": "Helsing\u00f6r", "name": "Helsing\u00f6r"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [12.616666666667, 12.616666666667, 56.033333333333, 56.033333333333]}

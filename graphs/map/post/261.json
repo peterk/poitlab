@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [16.366666666667, 56.666666666667]}, "properties": {"description": "Kalmar", "name": "Kalmar"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [16.366666666667, 16.366666666667, 56.666666666667, 56.666666666667]}

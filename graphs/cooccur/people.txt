@@ -1,0 +1,119 @@
+person	label	citizencountry
+<http://www.wikidata.org/entity/Q5952149>	Bengt Lilliehöök	
+<http://www.wikidata.org/entity/Q6185531>	Caspar Otto Sperling	
+<http://www.wikidata.org/entity/Q1085276>	Christoph Karl von Schlippenbach	
+<http://www.wikidata.org/entity/Q23062402>	Claus von Qualen	
+<http://www.wikidata.org/entity/Q13188231>	Daniel von Arentsschild	
+<http://www.wikidata.org/entity/Q6086045>	Erik Ryning	
+<http://www.wikidata.org/entity/Q167236>	Fredrik Henrik av Oranien	
+<http://www.wikidata.org/entity/Q6031735>	Gabriel Gabrielsson Oxenstierna	
+<http://www.wikidata.org/entity/Q5610514>	Gaspard Coignet de la Tuillerie	
+<http://www.wikidata.org/entity/Q503196>	Georg I Rákóczy	
+<http://www.wikidata.org/entity/Q195625>	Georg II Rákóczy	
+<http://www.wikidata.org/entity/Q871360>	Gottfried Huyn von Geleen	
+<http://www.wikidata.org/entity/Q366652>	Johan Georg I av Sachsen	
+<http://www.wikidata.org/entity/Q505548>	Johan Georg II av Sachsen	
+<http://www.wikidata.org/entity/Q15821370>	Johann Reichwald von Kämpfen	
+<http://www.wikidata.org/entity/Q155534>	Johann Tserclaes Tilly	
+<http://www.wikidata.org/entity/Q72057>	Johann von Sporck	
+<http://www.wikidata.org/entity/Q4477269>	John Hurry	
+<http://www.wikidata.org/entity/Q232793>	Marie Louise av Mantova	
+<http://www.wikidata.org/entity/Q5552856>	Martin (Thyssens) Anckarhjelm	
+<http://www.wikidata.org/entity/Q553849>	Matthias Gallas	
+<http://www.wikidata.org/entity/Q181915>	Mikael I av Ryssland	
+<http://www.wikidata.org/entity/Q5975045>	Nils Assersson Mannersköld	
+<http://www.wikidata.org/entity/Q697963>	Ottavio Piccolomini	
+<http://www.wikidata.org/entity/Q12330534>	Otto Blome	
+<http://www.wikidata.org/entity/Q316832>	Philipp Christoph von Sötern	
+<http://www.wikidata.org/entity/Q18632469>	Q18632469	
+<http://www.wikidata.org/entity/Q6185130>	Ture Eriksson Sparre	
+<http://www.wikidata.org/entity/Q3365710>	Anders Bille	Danmark
+<http://www.wikidata.org/entity/Q2152211>	Christen Thomesen Sehested	Danmark
+<http://www.wikidata.org/entity/Q825095>	Christian von Pentz	Danmark
+<http://www.wikidata.org/entity/Q325350>	Claus Ahlefeldt	Danmark
+<http://www.wikidata.org/entity/Q166808>	Corfitz Ulfeldt	Danmark
+<http://www.wikidata.org/entity/Q2466903>	Hannibal Sehested	Danmark
+<http://www.wikidata.org/entity/Q12317087>	Holger Rosenkrantz	Danmark
+<http://www.wikidata.org/entity/Q3365036>	Joachim Gersdorff	Danmark
+<http://www.wikidata.org/entity/Q4570246>	Jørgen Bjelke	Danmark
+<http://www.wikidata.org/entity/Q153586>	Kristian IV av Danmark	Danmark
+<http://www.wikidata.org/entity/Q2658032>	Ove Gjedde	Danmark
+<http://www.wikidata.org/entity/Q391053>	Valdemar Christian av Schleswig-Holstein	Danmark
+<http://www.wikidata.org/entity/Q7061312>	Christoffer Urne	Danmark-Norge
+<http://www.wikidata.org/entity/Q5921392>	Iver Krabbe	Danmark-Norge
+<http://www.wikidata.org/entity/Q15815047>	Helmold Wilhelm Wrangel	Finland
+<http://www.wikidata.org/entity/Q655347>	Torsten Stålhandske	Finland
+<http://www.wikidata.org/entity/Q193992>	Antoine III de Gramont	Frankrike
+<http://www.wikidata.org/entity/Q764696>	Caesar, duc de Choiseul	Frankrike
+<http://www.wikidata.org/entity/Q2409873>	Gaspard Coignet de La Thuilerie	Frankrike
+<http://www.wikidata.org/entity/Q644635>	Gaston av Orléans	Frankrike
+<http://www.wikidata.org/entity/Q303216>	Henri de la Tour d'Auvergne de Turenne	Frankrike
+<http://www.wikidata.org/entity/Q1280318>	Henri of Lorraine, Count of Harcourt	Frankrike
+<http://www.wikidata.org/entity/Q2345939>	Jean de Gassion	Frankrike
+<http://www.wikidata.org/entity/Q521299>	Jean-Louis Raduit de Souches	Frankrike
+<http://www.wikidata.org/entity/Q505101>	Karl IV av Lothringen	Frankrike
+<http://www.wikidata.org/entity/Q310837>	Louis II Condé	Frankrike
+<http://www.wikidata.org/entity/Q7742>	Ludvig XIV av Frankrike	Frankrike
+<http://www.wikidata.org/entity/Q81506>	Karl I av England	Kungariket England
+<http://www.wikidata.org/entity/Q550612>	Thomas Fairfax, 3:e lord Fairfax av Cameron	Kungariket England
+<http://www.wikidata.org/entity/Q154959>	Hugo Grotius	Nederländerna
+<http://www.wikidata.org/entity/Q470200>	Maarten Tromp	Nederländerna
+<http://www.wikidata.org/entity/Q695748>	Witte Corneliszon de With	Nederländerna
+<http://www.wikidata.org/entity/Q157812>	Fredrik III av Danmark	Norge
+<http://www.wikidata.org/entity/Q2856397>	Henrik Bjelke	Norge
+<http://www.wikidata.org/entity/Q6517115>	Niels Trolle	Norge
+<http://www.wikidata.org/entity/Q540532>	Frederick of Hesse-Darmstadt	Polen
+<http://www.wikidata.org/entity/Q680651>	Krzysztof Opaliński	Polen
+<http://www.wikidata.org/entity/Q54054>	Vladislav IV av Polen	Polsk-litauiska samväldet
+<http://www.wikidata.org/entity/Q434290>	Andries Bicker	Republiken Förenade Nederländerna
+<http://www.wikidata.org/entity/Q2477693>	Gerard Pietersz. Schaep	Republiken Förenade Nederländerna
+<http://www.wikidata.org/entity/Q935131>	Jacob de Witt	Republiken Förenade Nederländerna
+<http://www.wikidata.org/entity/Q1696679>	Joan Wolfert van Brederode	Republiken Förenade Nederländerna
+<http://www.wikidata.org/entity/Q255429>	Eudoxia Streshneva	Ryssland
+<http://www.wikidata.org/entity/Q123641>	Johann Ludwig von Erlach	Schweiz
+<http://www.wikidata.org/entity/Q979180>	James Graham, 1:e markis av Montrose	Skottland
+<http://www.wikidata.org/entity/Q691402>	Filip IV av Spanien	Spanien
+<http://www.wikidata.org/entity/Q437295>	Leopold Wilhelm av Österrike	Spanien
+<http://www.wikidata.org/entity/Q3178222>	Manuel de Moura	Spanien
+<http://www.wikidata.org/entity/Q717241>	Arvid Wittenberg	Sverige
+<http://www.wikidata.org/entity/Q6184848>	Axel Carlsson Sparre	Sverige
+<http://www.wikidata.org/entity/Q370829>	Axel Lillie	Sverige
+<http://www.wikidata.org/entity/Q155127>	Axel Oxenstierna	Sverige
+<http://www.wikidata.org/entity/Q809292>	Barthold Hartwig von Bülow	Sverige
+<http://www.wikidata.org/entity/Q19750490>	Barthold de Mortaigne	Sverige
+<http://www.wikidata.org/entity/Q439909>	Carl Gustaf Wrangel	Sverige
+<http://www.wikidata.org/entity/Q5948990>	Carl Mauritz Lewenhaupt	Sverige
+<http://www.wikidata.org/entity/Q329408>	Erik Axelsson Oxenstierna	Sverige
+<http://www.wikidata.org/entity/Q6188800>	Fredrik Gustavsson Stenbock	Sverige
+<http://www.wikidata.org/entity/Q3735417>	Gustaf Adolf Levenhaupt	Sverige
+<http://www.wikidata.org/entity/Q15965300>	Gustaf Bielke	Sverige
+<http://www.wikidata.org/entity/Q2492593>	Gustaf Evertsson Horn	Sverige
+<http://www.wikidata.org/entity/Q550657>	Gustaf Horn	Sverige
+<http://www.wikidata.org/entity/Q968941>	Gustaf Otto Stenbock	Sverige
+<http://www.wikidata.org/entity/Q68163>	Hans Christoff Königsmarck	Sverige
+<http://www.wikidata.org/entity/Q6186767>	Harald Stake	Sverige
+<http://www.wikidata.org/entity/Q5931104>	Israel Lagerfelt (1610–1684)	Sverige
+<http://www.wikidata.org/entity/Q834509>	Johan Adler Salvius	Sverige
+<http://www.wikidata.org/entity/Q5613813>	Johan Jespersson Cruus af Edeby	Sverige
+<http://www.wikidata.org/entity/Q2661641>	Johan Skytte	Sverige
+<http://www.wikidata.org/entity/Q52937>	Kristina av Sverige	Sverige
+<http://www.wikidata.org/entity/Q3808827>	Lars Kagg	Sverige
+<http://www.wikidata.org/entity/Q316816>	Lennart Torstenson	Sverige
+<http://www.wikidata.org/entity/Q1871628>	Louis De Geer (1587–1652)	Sverige
+<http://www.wikidata.org/entity/Q5948935>	Ludvig Wierich Lewenhaupt	Sverige
+<http://www.wikidata.org/entity/Q920243>	Magnus Gabriel De la Gardie	Sverige
+<http://www.wikidata.org/entity/Q1337696>	Robert Douglas	Sverige
+<http://www.wikidata.org/entity/Q5914206>	Staffan Klingspor	Sverige
+<http://www.wikidata.org/entity/Q7731>	Aleksej Michajlovitj	Tsarryssland
+<http://www.wikidata.org/entity/Q69137>	Anton Günther av Oldenburg	Tyskland
+<http://www.wikidata.org/entity/Q1082575>	Christian von Rantzau	Tyskland
+<http://www.wikidata.org/entity/Q644425>	Franz von Mercy	Tyskland
+<http://www.wikidata.org/entity/Q61360>	Fredrik III av Holstein-Gottorp	Tyskland
+<http://www.wikidata.org/entity/Q62507>	Georg Fredrik av Waldeck	Tyskland
+<http://www.wikidata.org/entity/Q1583574>	Hans von der Pforte	Tyskland
+<http://www.wikidata.org/entity/Q89836>	Johann von Götz	Tyskland
+<http://www.wikidata.org/entity/Q63850>	Johann von Werth	Tyskland
+<http://www.wikidata.org/entity/Q6185541>	Klaus Dietrich von Sperreuth	Tyskland
+<http://www.wikidata.org/entity/Q78305>	Melchior von Hatzfeldt	Tyskland
+<http://www.wikidata.org/entity/Q76930>	Rupert av Pfalz	Tyskland
+<http://www.wikidata.org/entity/Q150575>	Ferdinand III	Ungern

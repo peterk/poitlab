@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [13.594444444444, 56.450833333333]}, "properties": {"description": "Markaryd", "name": "Markaryd"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [13.594444444444, 13.594444444444, 56.450833333333, 56.450833333333]}

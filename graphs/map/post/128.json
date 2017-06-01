@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [12.325, 58.380555555556]}, "properties": {"description": "V\u00e4nersborg", "name": "V\u00e4nersborg"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [12.325, 12.325, 58.380555555556, 58.380555555556]}

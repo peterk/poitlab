@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [18.633333333333, 54.366666666667]}, "properties": {"description": "Gda\u0144sk", "name": "Gda\u0144sk"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [18.633333333333, 18.633333333333, 54.366666666667, 54.366666666667]}

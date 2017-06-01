@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Samförekomster av personer i POIT 1645</title>
+<style>
+
+.node {
+  stroke: #fff;
+  stroke-width: 1px;
+}
+
+.link {
+  fill: none;
+  stroke: #bbb;
+  stroke-opacity: 0.4;
+}
+
+h1 {
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+}
+html, body {
+    height:100%;
+    font-family: 'Roboto', sans-serif;
+    font-size:12px;
+    width:100%;
+}
+
+aside {
+    position:absolute;
+    left:10px;
+    top  : 2em;
+    width: 20%;
+  }
+  .svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%; /* aspect ratio */
+    vertical-align: top;
+    overflow: hidden;
+}
+.svg-content-responsive {
+    display: inline-block;
+    position: absolute;
+    top: 10px;
+    left: 0;
+}
+</style>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Co-occurring people in PoIT 1645">
+<meta property="og:description" content="Network visualization of people occuring in reports in PoIT in 1645.">
+<meta property="og:url" content="https://oldnews.peterkrantz.se/graphs/cooccur/">
+<meta property="og:image" content="https://oldnews.peterkrantz.se/graphs/cooccur/cooccur.jpg">
+</head>
+<body>
+<h1>Samförekomster av personer i POIT 1645</h1>  
+  <aside>
+<p>Diagrammet visar personer som ofta förekommer i samma rapport samt vilka
+  personer som är mest förekommande. Ju större cirkel desto oftare förekommande är
+  personen i rapporterna. Ju närmare en cirkel är en annan cirkel desto oftare förekommer de
+  i samma rapporter. Färg indikerar personens land. Hovra för att se namn.</p>
+<p><a href="/">Till startsidan</a></p>
+  </aside>
+  <div class="svg-container">
+<svg class="svg-content-responsive" width="1200" height="600" viewBox="0 0 1200
+  600" preserveAspectRatio="xMinYMin meet"></svg>
+  </div>
+<p style="float:right;font-size:smaller">Visualiseringskod baserad på <a href="https://bl.ocks.org/mbostock/4600693">Mike Bostock’s Block 4600693</a></p>
+<script>
+
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+
+var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().distance(10).strength(0.3))
+    .force("charge", d3.forceManyBody())
+    .force("collide", d3.forceCollide().radius(function(d) { return  scaleSize(parseInt(d.size + 2.5)); }).iterations(2))
+    .force("center", d3.forceCenter(width / 2, height / 2));
+      
+
+function charge(d) {
+  return -Math.pow(d.size, 2.0) / 8;
+}
+
+function scaleSize(size) {
+  if(size <= 10) {
+    return 3;
+  } else {
+    return size/3;
+  }
+}
+
+d3.json("/data/cooccur.json", function(error, graph) {
+  if (error) throw error;
+
+  var nodes = graph.nodes,
+      nodeById = d3.map(nodes, function(d) { return d.id; }),
+      links = graph.links,
+      bilinks = [];
+
+  links.forEach(function(link) {
+    var s = link.source = nodeById.get(link.source),
+        t = link.target = nodeById.get(link.target),
+        i = {}; // intermediate node
+    nodes.push(i);
+    links.push({source: s, target: i}, {source: i, target: t});
+    bilinks.push([s, i, t]);
+  });
+
+  var link = svg.selectAll(".link")
+    .data(bilinks)
+    .enter().append("path")
+      .attr("class", "link");
+
+  var node = svg.selectAll(".node")
+    .data(nodes.filter(function(d) { return d.id; }))
+    .enter().append("circle")
+      .attr("class", "node")
+      .attr("r", function(d) { return scaleSize(parseInt(d.size)) ; })
+      .attr("fill", function(d) { return color(d.group); })
+      .call(d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended));
+
+  node.append("title")
+      .text(function(d) { return d.label + " (" + d.group + ")"; });
+
+  simulation
+      .nodes(nodes)
+      .on("tick", ticked);
+
+  simulation.force("link").links(links);
+
+
+  function ticked() {
+    link.attr("d", positionLink);
+    node.attr("transform", positionNode);
+  }
+});
+
+function positionLink(d) {
+  return "M" + d[0].x + "," + d[0].y
+       + "S" + d[1].x + "," + d[1].y
+       + " " + d[2].x + "," + d[2].y;
+}
+
+function positionNode(d) {
+  return "translate(" + d.x + "," + d.y + ")";
+}
+
+function dragstarted(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x, d.fy = d.y;
+}
+
+function dragged(d) {
+  d.fx = d3.event.x, d.fy = d3.event.y;
+}
+
+function dragended(d) {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null, d.fy = null;
+}
+
+</script>
+</body>
+</html>

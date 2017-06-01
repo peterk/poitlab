@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [10.5, 48.85]}, "properties": {"description": "N\u00f6rdlingen", "name": "N\u00f6rdlingen"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [10.5, 10.5, 48.85, 48.85]}

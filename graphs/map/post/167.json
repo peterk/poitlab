@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [12.366666666667, 59.766666666667]}, "properties": {"description": "\u00c5motfors", "name": "\u00c5motfors"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [12.366666666667, 12.366666666667, 59.766666666667, 59.766666666667]}

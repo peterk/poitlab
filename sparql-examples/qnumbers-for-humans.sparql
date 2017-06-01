@@ -1,0 +1,13 @@
+# Wikidata Q-nummer för alla personer som förekommer i materialet.
+# wdt:P31 (instance of)
+# wd:Q5 (human)
+
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://www.wikidata.org/entity/>
+
+SELECT ?qnumber 
+WHERE {
+      ?person wdt:P31 wd:Q5 .
+BIND (replace(str(?person), "http://www.wikidata.org/entity/","") AS ?qnumber) .
+FILTER(regex(str(?person), "www.wikidata.org" ) )
+}

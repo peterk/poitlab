@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [12.85, 56.666666666667]}, "properties": {"description": "Halmstad", "name": "Halmstad"}}], "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:2:84"}}, "bbox": [12.85, 12.85, 56.666666666667, 56.666666666667]}

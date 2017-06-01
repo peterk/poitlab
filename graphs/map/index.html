@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8 />
+		<title>Inrikes tidningar 1645 (experiment)</title>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+		<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"
+			integrity="sha512-A7vV8IFfih/D732iSSKi20u/ooOfj/AGehOKq0f4vLT1Zr2Y+RX7C+w8A1gaSasGtRUZpF/NZgzSAu4/Gc41Lg=="
+		crossorigin=""></script>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"
+	integrity="sha512-07I2e+7D8p6he1SIM+1twR5TIrhUQn9+I6yjqD53JQjFiMf8EtC93ty0/5vJTZGF8aAocvHYNEDJajGdNx1IsQ=="
+	crossorigin=""/>    
+	<script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.css">
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.js"></script>
+	<script src="./leaflet.timeline.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+	<style type="text/css" media="screen">
+		.leaflet-bottom.leaflet-left{
+			width: 100%;
+		}
+		.leaflet-control-container .leaflet-timeline-controls{
+			box-sizing: border-box;
+			width: 100%;
+			margin: 0;
+			margin-bottom: 15px;
+		}
+		html,body {height:100%}
+
+		.info { padding: 6px 8px; font: 14px/16px Arial, Helvetica, sans-serif; background: white; background: rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px; } .info h4 { margin: 0 0 5px; color: #777; }
+		.legend { text-align: left; line-height: 18px; color: #555; width: 300px} 
+		.legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7; }
+
+	</style>
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="Inrikes tidningar 1645 (experiment)">
+	<meta property="og:description" content="Visualisering av orter som förekommer i inrikes tidningar från 1645. ">
+	<meta property="og:url" content="/map/">
+	<meta property="og:image" content="//oldnews.peterkrantz.se/graphs/map/poit-preview.png">	
+</head>
+<body>
+	<div id='map' style='min-width: 200px; min-height: 200px;width:100%;height:99%'></div>
+
+	<script type="text/javascript">
+
+		var startTime = new Date("1645-01-01T01:00:00");
+
+var map = L.map('map', {
+	zoom: 4,
+	center: [55.4360, 13.80849],
+	fullscreenControl: true,
+});
+
+
+L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+	maxZoom: 18, attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>'}).addTo(map);
+
+
+function updateList(timeline){
+	var displayed = timeline.getLayers();
+	var list = document.getElementById('displayed-list');
+	list.innerHTML = "";
+	displayed.forEach(function(poit){
+		var li = document.createElement('li');
+		li.innerHTML = poit.feature.properties.title;
+		list.appendChild(li);
+	});
+}
+
+
+function poit_callback(data){
+	var getInterval = function(feature) {
+		// point is displayed for 20 days after it is added.
+		return {
+			start: Date.parse(feature.properties.time),
+			end:   Date.parse(feature.properties.time) + (5*864000000),
+		};
+	};
+	var timelineControl = L.timelineSliderControl({
+		formatOutput: function(date){
+			return moment(date).format("YYYY-MM-DD");
+		}
+	});
+	var timeline = L.timeline(data, {
+		getInterval: getInterval,
+		pointToLayer: function(data, latlng){
+			var hue = 20;
+			return L.circleMarker(latlng, {
+				radius: 4,
+				color: "#2b8cbe",
+				fillColor: "#2b8cbe",
+				opacity: 0.5,
+				fillOpacity: 0.5,
+			}).bindPopup(data.properties.description);
+		}
+	});
+	timelineControl.addTo(map);
+	timelineControl.addTimelines(timeline);
+	timeline.addTo(map);
+}
+
+
+$.getJSON("/data/map.json", function(data) { poit_callback(data); });
+
+
+var legend = L.control({position: 'topright'});
+
+legend.onAdd = function (map) {
+
+	var div = L.DomUtil.create('div', 'info legend');
+
+	div.innerHTML = '<img src="/graphs/map/poitlogo.svg" style="width:95%;  margin:10px" alt="Inrikes tidningar 1645"><p>Orter omnämnda i POIT år 1645. Använd reglaget längst ner på kartan för att se orter omnämnda vid olika datum.</p><p>All data is open data. <a href="/graphs/map/poit.json">GeoJson</a></p>';
+
+	return div;
+};
+
+legend.addTo(map);
+
+</script>
+
+</body>
+</html>
