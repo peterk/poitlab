@@ -80,13 +80,13 @@ for node in copeople.nodes():
 
 logger.info(f"Co-occurence graph node count: {copeople.number_of_nodes()}")
 
-nx.write_gml(copeople, "./graph/copeople.gml")
+nx.write_gml(copeople, "./data/cooccur.gml")
 
 data = json_graph.node_link_data(copeople)
 
 data['links'] = [ {  'source': data['nodes'][link['source']]['id'], 'target':
     data['nodes'][link['target']]['id'] } for link in data['links']]
 
-with open('./graph/copeople.json', 'w') as f:
+with open('./data/cooccur.json', 'w') as f:
   json.dump(data, f, ensure_ascii=False, indent=4)
 

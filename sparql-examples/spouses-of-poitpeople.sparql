@@ -1,0 +1,26 @@
+# Spouses of people in POIT.
+# Run this federated query from a local tool.
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX foaf:   <http://xmlns.com/foaf/0.1/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>        
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX bd: <http://www.bigdata.com/rdf#>
+
+SELECT ?person ?personname ?spouse  ?spousename
+WHERE
+{
+	?person wdt:P31 wd:Q5 .
+	?person rdfs:label ?personname .
+	FILTER(regex(str(?person), "www.wikidata.org" ) ) 
+
+	SERVICE <https://query.wikidata.org/sparql> 
+	{ 
+		?person wdt:P26 ?spouse .
+		OPTIONAL {
+			?spouse rdfs:label ?spousename filter (lang(?spousename) = "en") .
+		}
+   }
+} ORDER BY ?personname

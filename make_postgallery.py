@@ -55,7 +55,7 @@ for post_id in post_ids:
             if row["thumbnail"]:
                 person["thumbnail"] = row["thumbnail"].value
             else:
-                person["thumbnail"] = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/User_byStone.png/120px-User_byStone.png"
+                person["thumbnail"] = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Image_of_none.svg/120px-Image_of_none.svg.png"
             people.append(person)
 
     if len(people) > 0:

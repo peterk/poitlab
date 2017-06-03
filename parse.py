@@ -160,6 +160,7 @@ def wikidata_from_wp(titles):
         md5 = hashlib.md5()
         md5.update(q.encode('utf-8'))
         filename = os.path.join("wdcache", "prop_" + md5.hexdigest())
+        logger.info(f"Cache name is {filename}")
         if os.path.isfile(filename):
             # Get from cache
             with open(filename, 'rb') as cachehandle:
@@ -205,7 +206,7 @@ def get_basics_for_wduri(wikidata_uri):
 
         sq = f'''
 SELECT ?itemLabel ?lat ?lon ?country ?countryLabel ?imageurl ?instance ?type
-?entityDescription ?citizencountry ?citizencountryLabel
+?entityDescription ?citizencountry ?citizencountryLabel ?librisid ?viafid
 WHERE
 {{
   BIND (<{wikidata_uri}> as ?entity)
@@ -225,6 +226,14 @@ WHERE
   
   OPTIONAL {{
     ?entity wdt:P27 ?citizencountry .
+  }}
+
+  OPTIONAL {{
+    ?entity wdt:P906 ?librisid .
+  }}
+  
+  OPTIONAL {{
+    ?entity wdt:P214 ?viafid .
   }}
 
   SERVICE wikibase:label {{ 
@@ -288,6 +297,13 @@ LIMIT 1
             g.add((URIRef(wikidata_uri), NAMESPACES["schema"]["thumbnailUrl"], Literal(thumbnail)))
             logger.info(f"Added thumbnail {thumbnail}")
 
+        if "librisid" in result:
+            g.add( (URIRef(wikidata_uri), NAMESPACES["wdt"]["P906"], Literal(result["librisid"]["value"] )) )
+
+        if "viafid" in result:
+            g.add( (URIRef(wikidata_uri), NAMESPACES["wdt"]["P214"], Literal(result["viafid"]["value"] )) )
+
+
 
 
 
@@ -298,8 +314,8 @@ def uri_for_post(post_id):
 
 
 def jsonld_for_post(post):
-    wdids = parse_identifiers(post["content"]["rendered"])
     logger.info(f"Working on post -------> {post['id']}")
+    wdids = parse_identifiers(post["content"]["rendered"])
 
     itemuri = uri_for_post(post["id"])
     # Basic page data
@@ -318,22 +334,22 @@ def jsonld_for_post(post):
 
 
 def write_unknowns():
-    with open("./data/unknown_persons.csv", "w") as f:
-        writer = csv.writer(f)
-        for row in unknown_persons:
+    with open("./data/unknown_persons.csv", "w", encoding='utf-8') as f:
+        writer = csv.writer(f, dialect=csv.excel)
+        for row in sorted(unknown_persons, key=lambda tup: tup[0]):
             writer.writerow(row)
 
-    with open("./data/unknown_places.csv", "w") as f:
-        writer = csv.writer(f)
-        for row in unknown_places:
+    with open("./data/unknown_places.csv", "w", encoding='utf-8') as f:
+        writer = csv.writer(f, dialect=csv.excel)
+        for row in sorted(unknown_places, key=lambda tup: tup[0]):
             writer.writerow(row)
 
 
 
 def write_link_labels():
-    with open("./data/link_labels.csv", "w") as f:
-        writer = csv.writer(f)
-        for row in link_labels:
+    with open("./data/link_labels.csv", "w", encoding='utf-8') as f:
+        writer = csv.writer(f, dialect=csv.excel)
+        for row in sorted(link_labels, key=lambda tup: tup[0]):
             writer.writerow(row)
 
 

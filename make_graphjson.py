@@ -54,7 +54,7 @@ for post in g.subjects( RDF.type, NAMESPACES["schema"]["NewsArticle"]):
         ng.add_edge(post, item)
 
 data = json_graph.node_link_data(ng)
-with open('./graph/graph.json', 'w') as f:
+with open('./graphs/graph.json', 'w') as f:
   json.dump(data, f, ensure_ascii=False, indent=4)
 
 

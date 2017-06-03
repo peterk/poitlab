@@ -6,7 +6,6 @@ import pygeoj
 from geojson import Feature, Point
 import coloredlogs, logging
 
-
 geoj = pygeoj.new()
 
 NAMESPACES = {	
@@ -43,4 +42,4 @@ for row in qres:
     f.properties = {"description": desc, "name":row[1], "time": row[4], "url": row[5]}
     geoj.add_feature(f)
 
-geoj.save("./map/poit.json")
+geoj.save("./data/map.json")
