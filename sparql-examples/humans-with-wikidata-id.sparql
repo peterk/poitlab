@@ -6,9 +6,9 @@ PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>        
 PREFIX wd: <http://www.wikidata.org/entity/>
 
-SELECT ?person ?label 
+SELECT ?qnumber 
 WHERE {
       ?person wdt:P31 wd:Q5 .
-      ?person rdfs:label ?label .
+      BIND (replace(str(?person), "http://www.wikidata.org/wiki/ ) ?qnumber as 
 FILTER(regex(str(?person), "www.wikidata.org" ) )
 }
