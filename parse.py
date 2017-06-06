@@ -32,7 +32,6 @@ coloredlogs.install(level='DEBUG')
 
 
 
-
 def thumb_url(url, size):
     """Return a Wikimedia commons thumbnail URL from the canonical image url
     returned by wikidata. (Necessary to get e.g. tif image thumbnails)"""
@@ -79,7 +78,9 @@ def parse_identifiers(htmltext):
         href = link.attrib["href"]
         if "wikipedia.org" in href:
             wikipedialinks.append(href.strip())
-            link_labels.append((href, link.text_content().strip()))
+            link_tuple = (href.strip(), link.text_content().strip()) 
+            if not link_tuple in link_labels:
+                link_labels.append(link_tuple)
 
     titles = page_titles_from_links(wikipedialinks)
 
@@ -348,7 +349,8 @@ def write_unknowns():
 
 def write_link_labels():
     with open("./data/link_labels.csv", "w", encoding='utf-8') as f:
-        writer = csv.writer(f, dialect=csv.excel)
+        writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+        writer.writerow(("link","label"))
         for row in sorted(link_labels, key=lambda tup: tup[0]):
             writer.writerow(row)
 
