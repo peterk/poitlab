@@ -8,4 +8,10 @@ The idea is to apply a kind of Fourier transform to chronologic historic text an
 ## Workflow
 We used the first year of Inrikes tidningar from 1645 as a sample. The text was digitized and transcribed by the National Library of Sweden in 1998 and made available as open data.
 
-To see visualizations and results see: https://oldnews.peterkrantz.se/about-the-experiment
+<img src="https://oldnews.peterkrantz.se/wp-content/uploads/2017/05/poit1645-page-example.jpg" alt="Page from the 1645 edition">
+
+For visualizations and results see: https://oldnews.peterkrantz.se/about-the-experiment
+
+Geogrpahical context: https://oldnews.peterkrantz.se/graphs/map/
+
+
